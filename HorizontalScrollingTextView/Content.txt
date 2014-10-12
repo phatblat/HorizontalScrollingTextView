@@ -1,0 +1,427 @@
+
+UITextView
+
+IMPORTANT
+
+This is a preliminary document for an API or technology in development. Apple is supplying this information to help you plan for the adoption of the technologies and programming interfaces described herein for use on Apple-branded products. This information is subject to change, and software implemented according to this document should be tested with final operating system software and final documentation. Newer versions of this document may be provided with future betas of the API or technology.
+
+The UITextView class implements the behavior for a scrollable, multiline text region. The class supports the display of text using custom style information and also supports text editing. You typically use a text view to display multiple lines of text, such as when displaying the body of a large text document.
+
+In iOS 6 and later, this class supports multiple text styles through use of the attributedText property. (Styled text is not supported in earlier versions of iOS.) Setting a value for this property causes the text view to use the style information provided in the attributed string. You can still use the font, textColor, and textAlignment properties to set style attributes, but those properties apply to all of the text in the text view.
+
+For information about basic view behaviors, see View Programming Guide for iOS.
+
+Managing the Keyboard
+When the user taps in an editable text view, that text view becomes the first responder and automatically asks the system to display the associated keyboard. Because the appearance of the keyboard has the potential to obscure portions of your user interface, it is up to you to make sure that does not happen by repositioning any views that might be obscured. Some system views, like table views, help you by scrolling the first responder into view automatically. If the first responder is at the bottom of the scrolling region, however, you may still need to resize or reposition the scroll view itself to ensure the first responder is visible.
+
+It is your application’s responsibility to dismiss the keyboard at the time of your choosing. You might dismiss the keyboard in response to a specific user action, such as the user tapping a particular button in your user interface. To dismiss the keyboard, send the resignFirstResponder message to the text view that is currently the first responder. Doing so causes the text view object to end the current editing session (with the delegate object’s consent) and hide the keyboard.
+
+The appearance of the keyboard itself can be customized using the properties provided by the UITextInputTraits protocol. Text view objects implement this protocol and support the properties it defines. You can use these properties to specify the type of keyboard (ASCII, Numbers, URL, Email, and others) to display. You can also configure the basic text entry behavior of the keyboard, such as whether it supports automatic capitalization and correction of the text.
+
+Keyboard Notifications
+When the system shows or hides the keyboard, it posts several keyboard notifications. These notifications contain information about the keyboard, including its size, which you can use for calculations that involve repositioning or resizing views. Registering for these notifications is the only way to get some types of information about the keyboard. The system delivers the following notifications for keyboard-related events:
+
+UIKeyboardWillShowNotification
+
+UIKeyboardDidShowNotification
+
+UIKeyboardWillHideNotification
+
+UIKeyboardDidHideNotification
+
+For more information about these notifications, see their descriptions in UIWindow Class Reference.
+
+State Preservation
+In iOS 6 and later, if you assign a value to this view’s restorationIdentifier property, it preserves the following information:
+
+The selected range of text, as reported by the selectedRange property.
+
+The editing state of the text view, as reported by the editable property.
+
+During the next launch cycle, the view attempts to restore these properties to their saved values. If the selection range cannot be applied to the text in the restored view, no text is selected. For more information about how state preservation and restoration works, see App Programming Guide for iOS.
+
+For more information about appearance and behavior configuration, see Text Views.
+
+Initialization
+initWithFrame:textContainer:
+Creates a new text view with the specified text container.
+
+Declaration
+SWIFT
+init(frame frame: CGRect,
+textContainer textContainer: NSTextContainer!)
+OBJECTIVE-C
+- (instancetype)initWithFrame:(CGRect)frame
+textContainer:(NSTextContainer *)textContainer
+Parameters
+frame
+The frame rectangle of the text view.
+textContainer
+The text container to use for the receiver (can be nil).
+Return Value
+An initialized text view.
+
+Discussion
+This is the designated initializer for UITextView objects.
+
+Availability
+Available in iOS 7.0 and later.
+
+Configuring the Text Attributes
+text
+The text displayed by the text view.
+
+Declaration
+SWIFT
+var text: String!
+OBJECTIVE-C
+@property(nonatomic, copy) NSString *text
+Discussion
+In iOS 6 and later, assigning a new value to this property also replaces the value of the attributedText property with the same text, albeit without any inherent style attributes. Instead the text view styles the new string using the font, textColor, and other style-related properties of the class.
+
+Availability
+Available in iOS 2.0 and later.
+
+See Also
+attributedText
+
+attributedText
+The styled text displayed by the text view.
+
+Declaration
+SWIFT
+var attributedText: NSAttributedString!
+OBJECTIVE-C
+@property(nonatomic, copy) NSAttributedString *attributedText
+Discussion
+This property is nil by default. Assigning a new value to this property also replaces the value of the text property with the same string data, albeit without any formatting information. In addition, assigning a new a value updates the values in the font, textColor, and textAlignment properties so that they reflect the style information starting at location 0 in the attributed string.
+
+Availability
+Available in iOS 6.0 and later.
+
+font
+The font of the text.
+
+Declaration
+SWIFT
+var font: UIFont!
+OBJECTIVE-C
+@property(nonatomic, retain) UIFont *font
+Discussion
+This property applies to the entire text string. The default font is a 17-point Helvetica plain font.
+
+NOTE
+You can get information about the fonts available on the system using the methods of the UIFont class.
+
+In iOS 6 and later, assigning a new value to this property causes the new font to be applied to the entire contents of the text view. If you want to apply the font to only a portion of the text, you must create a new attributed string with the desired style information and assign it to the attributedText property.
+
+Availability
+Available in iOS 2.0 and later.
+
+textColor
+The color of the text.
+
+Declaration
+SWIFT
+var textColor: UIColor!
+OBJECTIVE-C
+@property(nonatomic, retain) UIColor *textColor
+Discussion
+This property applies to the entire text string. The default text color is black.
+
+In iOS 6 and later, assigning a new value to this property causes the new text color to be applied to the entire contents of the text view. If you want to apply the color to only a portion of the text, you must create a new attributed string with the desired style information and assign it to the attributedText property.
+
+Availability
+Available in iOS 2.0 and later.
+
+See Also
+backgroundColor (UIView)
+
+editable
+A Boolean value indicating whether the receiver is editable.
+
+Declaration
+SWIFT
+var editable: Bool
+OBJECTIVE-C
+@property(nonatomic, getter=isEditable) BOOL editable
+Discussion
+The default value of this property is YES.
+
+Availability
+Available in iOS 2.0 and later.
+
+allowsEditingTextAttributes
+A Boolean value indicating whether the text view allows the user to edit style information.
+
+Declaration
+SWIFT
+var allowsEditingTextAttributes: Bool
+OBJECTIVE-C
+@property(nonatomic) BOOL allowsEditingTextAttributes
+Discussion
+When set to YES, the text view allows the user to change the basic styling of the currently selected text. The available style options are listed in the edit menu and only apply to the selection.
+
+The default value of this property is NO.
+
+Availability
+Available in iOS 6.0 and later.
+
+dataDetectorTypes
+The types of data converted to clickable URLs in the text view.
+
+Declaration
+SWIFT
+var dataDetectorTypes: UIDataDetectorTypes
+OBJECTIVE-C
+@property(nonatomic) UIDataDetectorTypes dataDetectorTypes
+Discussion
+You can use this property to specify the types of data (phone numbers, http links, and so on) that should be automatically converted to clickable URLs in the text view. When clicked, the text view opens the application responsible for handling the URL type and passes it the URL.
+
+Availability
+Available in iOS 3.0 and later.
+
+textAlignment
+The technique to use for aligning the text.
+
+Declaration
+SWIFT
+var textAlignment: NSTextAlignment
+OBJECTIVE-C
+@property(nonatomic) NSTextAlignment textAlignment
+Discussion
+This property applies to the entire text string. The default value of this property is NSTextAlignmentLeft.
+
+In iOS 6 and later, assigning a new value to this property causes the new text alignment to be applied to the entire contents of the text view. If you want to apply the alignment to only a portion of the text, you must create a new attributed string with the desired style information and assign it to the attributedText property.
+
+Availability
+Available in iOS 2.0 and later.
+
+hasText
+Available in iOS 2.0 through iOS 6.1
+Returns a Boolean value indicating whether the text view currently contains any text.
+
+Declaration
+OBJECTIVE-C
+- (BOOL)hasText
+Return Value
+YES if the receiver contains text or NO if it does not.
+
+Availability
+Available in iOS 2.0 through iOS 6.1.
+
+typingAttributes
+The attributes to apply to new text being entered by the user.
+
+Declaration
+SWIFT
+var typingAttributes: [NSObject : AnyObject]!
+OBJECTIVE-C
+@property(nonatomic, copy) NSDictionary *typingAttributes
+Discussion
+This dictionary contains the attribute keys (and corresponding values) to apply to newly typed text. When the text view’s selection changes, the contents of the dictionary are cleared automatically.
+
+Availability
+Available in iOS 6.0 and later.
+
+See Also
+editable
+
+linkTextAttributes
+The attributes to apply to links.
+
+Declaration
+SWIFT
+var linkTextAttributes: [NSObject : AnyObject]!
+OBJECTIVE-C
+@property(nonatomic, copy) NSDictionary *linkTextAttributes
+Discussion
+The default attributes specify blue text with a single underline and the pointing hand cursor.
+
+Availability
+Available in iOS 7.0 and later.
+
+textContainerInset
+The inset of the text container's layout area within the text view's content area.
+
+Declaration
+SWIFT
+var textContainerInset: UIEdgeInsets
+OBJECTIVE-C
+@property(nonatomic, assign) UIEdgeInsets textContainerInset
+Discussion
+This property provides text margins for text laid out in the text view.
+
+Availability
+Available in iOS 7.0 and later.
+
+Working with the Selection
+selectedRange
+The current selection range of the receiver.
+
+Declaration
+SWIFT
+var selectedRange: NSRange
+OBJECTIVE-C
+@property(nonatomic) NSRange selectedRange
+Discussion
+In iOS 2.2 and earlier, the length of the selection range is always 0, indicating that the selection is actually an insertion point. In iOS 3.0 and later, the length of the selection range may be non-zero.
+
+Availability
+Available in iOS 2.0 and later.
+
+scrollRangeToVisible:
+Scrolls the receiver until the text in the specified range is visible.
+
+Declaration
+SWIFT
+func scrollRangeToVisible(_ range: NSRange)
+OBJECTIVE-C
+- (void)scrollRangeToVisible:(NSRange)range
+Parameters
+range
+The range of text to scroll into view.
+Availability
+Available in iOS 2.0 and later.
+
+clearsOnInsertion
+A Boolean value indicating whether inserting text replaces the previous contents.
+
+Declaration
+SWIFT
+var clearsOnInsertion: Bool
+OBJECTIVE-C
+@property(nonatomic) BOOL clearsOnInsertion
+Discussion
+The default value of this property is NO. When the value of this property is YES and the text view is in editing mode, the selection UI is hidden and inserting new text clears the contents of the text view and sets the value of this property back to NO.
+
+Availability
+Available in iOS 6.0 and later.
+
+selectable
+A Boolean value indicating whether the receiver is selectable.
+
+Declaration
+SWIFT
+var selectable: Bool
+OBJECTIVE-C
+@property(nonatomic, getter=isSelectable) BOOL selectable
+Discussion
+This property controls the ability of the user to select content and interact with URLs and text attachments. The default value is YES.
+
+Availability
+Available in iOS 7.0 and later.
+
+Accessing the Delegate
+delegate
+The receiver’s delegate.
+
+Declaration
+SWIFT
+var delegate: UITextViewDelegate!
+OBJECTIVE-C
+@property(nonatomic, assign) id< UITextViewDelegate > delegate
+Discussion
+A text view delegate responds to editing-related messages from the text view. You can use the delegate to track changes to the text itself and to the current selection.
+
+For information about the methods implemented by the delegate, see UITextViewDelegate Protocol Reference.
+
+Availability
+Available in iOS 2.0 and later.
+
+Replacing the System Input Views
+inputView
+The custom input view to display when the text view becomes the first responder.
+
+Declaration
+SWIFT
+var inputView: UIView!
+OBJECTIVE-C
+@property(readwrite, retain) UIView *inputView
+Discussion
+If the value in this property is nil, the text view displays the standard system keyboard when it becomes first responder. Assigning a custom view to this property causes that view to be presented instead.
+
+The default value of this property is nil.
+
+Availability
+Available in iOS 3.2 and later.
+
+inputAccessoryView
+The custom accessory view to display when the text view becomes the first responder
+
+Declaration
+SWIFT
+var inputAccessoryView: UIView!
+OBJECTIVE-C
+@property(readwrite, retain) UIView *inputAccessoryView
+Discussion
+The default value of this property is nil. Assigning a view to this property causes that view to be displayed above the standard system keyboard (or above the custom input view if one is provided) when the text view becomes the first responder. For example, you could use this property to attach a custom toolbar to the keyboard.
+
+Availability
+Available in iOS 3.2 and later.
+
+See Also
+inputView
+
+Accessing Text Kit Objects
+layoutManager
+The layout manager that lays out text for the receiver’s text container. (read-only)
+
+Declaration
+SWIFT
+var layoutManager: NSLayoutManager! { get }
+OBJECTIVE-C
+@property(nonatomic, readonly) NSLayoutManager *layoutManager
+Discussion
+This property is a convenience accessor that provides access through the text container.
+
+Availability
+Available in iOS 7.0 and later.
+
+textContainer
+The text container object defining the area in which text is displayed in this text view. (read-only)
+
+Declaration
+SWIFT
+var textContainer: NSTextContainer! { get }
+OBJECTIVE-C
+@property(nonatomic, readonly) NSTextContainer *textContainer
+Availability
+Available in iOS 7.0 and later.
+
+textStorage
+The text storage object holding the text displayed in this text view. (read-only)
+
+Declaration
+SWIFT
+var textStorage: NSTextStorage! { get }
+OBJECTIVE-C
+@property(nonatomic, readonly, retain) NSTextStorage *textStorage
+Discussion
+This property is a convenience accessor that provides access through the text container.
+
+Availability
+Available in iOS 7.0 and later.
+
+Notifications
+UITextViewTextDidBeginEditingNotification
+Notifies observers that an editing session began in a text view. The affected view is stored in the
+
+Availability
+Available in iOS 2.0 and later.
+
+UITextViewTextDidChangeNotification
+Notifies observers that the text in a text view changed. The affected view is stored in the
+
+Availability
+Available in iOS 2.0 and later.
+
+UITextViewTextDidEndEditingNotification
+Notifies observers that the editing session ended for a text view. The affected view is stored in the
+
+Availability
+Available in iOS 2.0 and later.
+
+Copyright © 2014 Apple Inc. All rights reserved. Terms of Use | Privacy Policy | Updated: 2013-09-18
+
+FeedbackFeedback

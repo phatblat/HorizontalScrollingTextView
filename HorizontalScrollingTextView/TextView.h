@@ -1,5 +1,5 @@
 //
-//  ViewController.h
+//  TextView.h
 //  HorizontalScrollingTextView
 //
 //  Created by Ben Chatelain on 10/12/14.
@@ -8,8 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController <UITextViewDelegate, UIScrollViewDelegate, NSLayoutManagerDelegate, NSTextStorageDelegate>
-
+@interface TextView : UITextView
 
 @end
-

@@ -14,6 +14,9 @@
 		F88CDA1219EB173B00867C82 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F88CDA1119EB173B00867C82 /* Images.xcassets */; };
 		F88CDA1519EB173B00867C82 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = F88CDA1319EB173B00867C82 /* LaunchScreen.xib */; };
 		F88CDA2119EB173B00867C82 /* HorizontalScrollingTextViewTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F88CDA2019EB173B00867C82 /* HorizontalScrollingTextViewTests.m */; };
+		F88CDA2C19EB177000867C82 /* TextContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = F88CDA2B19EB177000867C82 /* TextContainer.m */; };
+		F88CDA2F19EB177F00867C82 /* TextView.m in Sources */ = {isa = PBXBuildFile; fileRef = F88CDA2E19EB177F00867C82 /* TextView.m */; };
+		F88CDA3119EB191F00867C82 /* Content.txt in Resources */ = {isa = PBXBuildFile; fileRef = F88CDA3019EB191F00867C82 /* Content.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +43,11 @@
 		F88CDA1A19EB173B00867C82 /* HorizontalScrollingTextViewTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HorizontalScrollingTextViewTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F88CDA1F19EB173B00867C82 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F88CDA2019EB173B00867C82 /* HorizontalScrollingTextViewTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HorizontalScrollingTextViewTests.m; sourceTree = "<group>"; };
+		F88CDA2A19EB177000867C82 /* TextContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextContainer.h; sourceTree = "<group>"; };
+		F88CDA2B19EB177000867C82 /* TextContainer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextContainer.m; sourceTree = "<group>"; };
+		F88CDA2D19EB177F00867C82 /* TextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextView.h; sourceTree = "<group>"; };
+		F88CDA2E19EB177F00867C82 /* TextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextView.m; sourceTree = "<group>"; };
+		F88CDA3019EB191F00867C82 /* Content.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Content.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,12 +91,17 @@
 			children = (
 				F88CDA0819EB173B00867C82 /* AppDelegate.h */,
 				F88CDA0919EB173B00867C82 /* AppDelegate.m */,
-				F88CDA0B19EB173B00867C82 /* ViewController.h */,
-				F88CDA0C19EB173B00867C82 /* ViewController.m */,
-				F88CDA0E19EB173B00867C82 /* Main.storyboard */,
 				F88CDA1119EB173B00867C82 /* Images.xcassets */,
 				F88CDA1319EB173B00867C82 /* LaunchScreen.xib */,
+				F88CDA0E19EB173B00867C82 /* Main.storyboard */,
 				F88CDA0419EB173B00867C82 /* Supporting Files */,
+				F88CDA2A19EB177000867C82 /* TextContainer.h */,
+				F88CDA2B19EB177000867C82 /* TextContainer.m */,
+				F88CDA2D19EB177F00867C82 /* TextView.h */,
+				F88CDA2E19EB177F00867C82 /* TextView.m */,
+				F88CDA0B19EB173B00867C82 /* ViewController.h */,
+				F88CDA0C19EB173B00867C82 /* ViewController.m */,
+				F88CDA3019EB191F00867C82 /* Content.txt */,
 			);
 			path = HorizontalScrollingTextView;
 			sourceTree = "<group>";
@@ -199,6 +212,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F88CDA3119EB191F00867C82 /* Content.txt in Resources */,
 				F88CDA1019EB173B00867C82 /* Main.storyboard in Resources */,
 				F88CDA1519EB173B00867C82 /* LaunchScreen.xib in Resources */,
 				F88CDA1219EB173B00867C82 /* Images.xcassets in Resources */,
@@ -220,7 +234,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				F88CDA0D19EB173B00867C82 /* ViewController.m in Sources */,
+				F88CDA2F19EB177F00867C82 /* TextView.m in Sources */,
 				F88CDA0A19EB173B00867C82 /* AppDelegate.m in Sources */,
+				F88CDA2C19EB177000867C82 /* TextContainer.m in Sources */,
 				F88CDA0719EB173B00867C82 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
