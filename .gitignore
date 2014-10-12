@@ -1,0 +1,5 @@
+.DS_Store
+*.xccheckout
+project.xcworkspace
+xcuserdata
+
