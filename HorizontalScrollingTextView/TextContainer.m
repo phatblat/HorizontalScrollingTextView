@@ -22,7 +22,7 @@
     CGRect resultingRect = [super lineFragmentRectForProposedRect:proposedRect atIndex:characterIndex writingDirection:baseWritingDirection remainingRect:remainingRect];
     NSLog(@"resultingRect: %@", NSStringFromCGRect(resultingRect));
 
-    return resultingRect;
+    return proposedRect;
 }
 
 @end

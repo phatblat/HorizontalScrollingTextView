@@ -28,7 +28,7 @@
     NSTextStorage *textStorage = [[NSTextStorage alloc] init];
     NSLayoutManager *layoutManager = [[NSLayoutManager alloc] init];
     [textStorage addLayoutManager:layoutManager];
-    NSTextContainer *textContainer = [[NSTextContainer alloc] init];
+    NSTextContainer *textContainer = [[TextContainer alloc] init];
     [layoutManager addTextContainer:textContainer];
     self.textView = [[TextView alloc] initWithFrame:self.view.frame textContainer:textContainer];
 
