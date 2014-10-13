@@ -10,9 +10,38 @@
 #import "TextContainer.h"
 #import "TextView.h"
 
+static NSString * NSStringFromUIGestureRegognizerState(UIGestureRecognizerState state) {
+    switch (state) {
+        case UIGestureRecognizerStatePossible:
+            return @"UIGestureRecognizerStatePossible";
+            break;
+        case UIGestureRecognizerStateBegan:
+            return @"UIGestureRecognizerStateBegan";
+            break;
+        case UIGestureRecognizerStateChanged:
+            return @"UIGestureRecognizerStateChanged";
+            break;
+        case UIGestureRecognizerStateEnded:
+            return @"UIGestureRecognizerStateEnded";
+            break;
+        case UIGestureRecognizerStateCancelled:
+            return @"UIGestureRecognizerStateCancelled";
+            break;
+        case UIGestureRecognizerStateFailed:
+            return @"UIGestureRecognizerStateFailed";
+            break;
+    }
+}
+
 @interface ViewController ()
 
-@property (strong, nonatomic) UITextView *textView;
+@property (strong, nonatomic) TextView *textView;
+
+/**
+ This is a pointer to the textView's default scrollview UIPanGestureRecognizer
+ */
+@property (weak, nonatomic) UIGestureRecognizer *verticalPanGestureRecognizer;
+@property (strong, nonatomic) UIGestureRecognizer *horizontalPanGestureRecognizer;
 
 @end
 
@@ -28,21 +57,13 @@
     NSTextStorage *textStorage = [[NSTextStorage alloc] init];
     NSLayoutManager *layoutManager = [[NSLayoutManager alloc] init];
     [textStorage addLayoutManager:layoutManager];
-    NSTextContainer *textContainer = [[TextContainer alloc] init];
+    TextContainer *textContainer = [[TextContainer alloc] init];
     [layoutManager addTextContainer:textContainer];
     self.textView = [[TextView alloc] initWithFrame:self.view.frame textContainer:textContainer];
 
     // View hierarchy
     [self.view addSubview:self.textView];
     self.textView.translatesAutoresizingMaskIntoConstraints = NO;
-//    NSArray *horizontalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[textView]|"
-//                                                                             options:NSLayoutFormatDirectionLeadingToTrailing
-//                                                                             metrics:nil
-//                                                                               views:@{ @"textView": self.textView }];
-//    NSArray *verticalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[textView]|"
-//                                                                           options:NSLayoutFormatDirectionLeadingToTrailing
-//                                                                           metrics:nil
-//                                                                             views:@{ @"textView": self.textView }];
 
     NSLayoutConstraint *topConstraint = [NSLayoutConstraint constraintWithItem:self.textView
                                                                      attribute:NSLayoutAttributeTop
@@ -74,7 +95,6 @@
                                                                           constant:0];
 
     [self.view addConstraints:@[topConstraint, bottomConstraint, leadingConstraint, trailingConstraint]];
-    [self.view setNeedsLayout];
 
     // Delegates
     self.textView.delegate = self;
@@ -83,36 +103,75 @@
 
     self.textView.scrollEnabled = YES;
     self.textView.editable = NO;
-//    self.textView.textContainer.widthTracksTextView = NO;
-//    self.textView.textContainerInset = UIEdgeInsetsMake(0, 100, 0, 0);
+    self.textView.layoutManager.allowsNonContiguousLayout = YES;
+
+    // Gesture recognizers
+    self.verticalPanGestureRecognizer = self.textView.panGestureRecognizer;
+    [self.verticalPanGestureRecognizer addTarget:self action:@selector(handlePanForScrollView:)];
+    self.horizontalPanGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanForScrollView:)];
+    self.horizontalPanGestureRecognizer.delegate = self;
+//    [self.horizontalPanGestureRecognizer requireGestureRecognizerToFail:self.verticalPanGestureRecognizer];
+    [self.textView addGestureRecognizer:self.horizontalPanGestureRecognizer];
+    NSLog(@"self.textView.panGestureRecognizer: %@", self.textView.panGestureRecognizer);
+    NSLog(@"self.verticalPanGestureRecognizer: %@", self.verticalPanGestureRecognizer);
+    NSLog(@"self.horizontalPanGestureRecognizer: %@", self.horizontalPanGestureRecognizer);
 
     // Text Style
     self.textView.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
 
     // Load text into textView
     self.textView.text = [self loadText];
-    //    self.textView.text = [self attrbituedTextForCommit:self.currentCommit].string;
+
+    NSLog(@"self.textView.contentSize: %@", NSStringFromCGSize(self.textView.contentSize));
+    NSLog(@"textContainer.size: %@", NSStringFromCGSize(self.textView.textContainer.size));
 
     CGSize contentSize = self.textView.contentSize;
-    //    CGSize size = [self.textView.text sizeWithAttributes:nil];
     CGFloat textLength = [self.textView.text sizeWithFont:self.textView.font
                                         constrainedToSize:CGSizeMake(CGFLOAT_MAX, self.textView.frame.size.height)
                                             lineBreakMode:NSLineBreakByWordWrapping].width;
     contentSize.width = textLength;
-//    self.textView.contentSize = contentSize;
-}
+    self.textView.contentSize = contentSize;
+    self.textView.textContainer.size = contentSize;
+    textContainer.contentSize = contentSize;
 
-- (void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
-    [self.textView sizeToFit];
-    [self.textView layoutIfNeeded];
+    NSLog(@"contentSize: %@", NSStringFromCGSize(contentSize));
+    NSLog(@"self.textView.contentSize: %@", NSStringFromCGSize(self.textView.contentSize));
+    NSLog(@"textContainer.size: %@", NSStringFromCGSize(self.textView.textContainer.size));
 }
 
 #pragma mark - UITextViewDelegate
 #pragma mark - UIScrollViewDelegate
 #pragma mark - NSTextStorageDelegate
 #pragma mark - NSLayoutManagerDelegate
+#pragma mark - UIGestureRecognizerDelegate
+
+- (BOOL)gestureRecognizerShouldBegin:(UIPanGestureRecognizer *)gestureRecognizer
+{
+    NSLog(@"");
+
+    // Leave the stock UIScrollViewPanGestureRecognizer alone, it handles vertical scrolling
+    if (gestureRecognizer == self.verticalPanGestureRecognizer) {
+        return YES;
+    }
+
+    // Only allow the horizontalPanGestureRecognizer to begin when we are scrolling horizontally
+    CGPoint velocity = [gestureRecognizer velocityInView:self.textView];
+    return fabs(velocity.x) > fabs(velocity.y);
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
+       shouldReceiveTouch:(UITouch *)touch
+{
+    NSLog(@"");
+    return YES;
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
+shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+{
+    NSLog(@"");
+    return YES;
+}
 
 #pragma mark - Private Methods
 
@@ -121,6 +180,24 @@
     NSString *path = [[NSBundle mainBundle] pathForResource:@"Content" ofType:@"txt"];
     NSString *content = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
     return content;
+}
+
+- (void)handlePanForScrollView:(UIPanGestureRecognizer *)gesture
+{
+    NSLog(@"gestureRecognizer: %@", gesture);
+//    NSLog(@"state: %@", NSStringFromUIGestureRegognizerState(gesture.state));
+
+//    switch (gesture.state) {
+//        case UIGestureRecognizerStateBegan:
+//            startScrollPoint = [gesture locationInView:self.scrollView];
+//            break;
+//        case UIGestureRecognizerStateEnded: {
+//            NSLog(@"end");
+//        }
+//        default:
+//            ;
+//            break;
+//    }
 }
 
 @end

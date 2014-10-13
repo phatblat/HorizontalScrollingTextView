@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController <UITextViewDelegate, UIScrollViewDelegate, NSLayoutManagerDelegate, NSTextStorageDelegate>
+@interface ViewController : UIViewController <UITextViewDelegate, UIScrollViewDelegate, NSLayoutManagerDelegate, NSTextStorageDelegate, UIGestureRecognizerDelegate>
 
 
 @end
