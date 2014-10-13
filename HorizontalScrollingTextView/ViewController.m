@@ -42,6 +42,7 @@ static NSString * NSStringFromUIGestureRegognizerState(UIGestureRecognizerState 
  */
 @property (weak, nonatomic) UIGestureRecognizer *verticalPanGestureRecognizer;
 @property (strong, nonatomic) UIGestureRecognizer *horizontalPanGestureRecognizer;
+@property (assign, nonatomic) CGPoint lastHorizontalScrollPoint;
 
 @end
 
@@ -107,8 +108,8 @@ static NSString * NSStringFromUIGestureRegognizerState(UIGestureRecognizerState 
 
     // Gesture recognizers
     self.verticalPanGestureRecognizer = self.textView.panGestureRecognizer;
-    [self.verticalPanGestureRecognizer addTarget:self action:@selector(handlePanForScrollView:)];
-    self.horizontalPanGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanForScrollView:)];
+//    [self.verticalPanGestureRecognizer addTarget:self action:@selector(handlePanForTextView:)];
+    self.horizontalPanGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanForTextView:)];
     self.horizontalPanGestureRecognizer.delegate = self;
 //    [self.horizontalPanGestureRecognizer requireGestureRecognizerToFail:self.verticalPanGestureRecognizer];
     [self.textView addGestureRecognizer:self.horizontalPanGestureRecognizer];
@@ -182,22 +183,41 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
     return content;
 }
 
-- (void)handlePanForScrollView:(UIPanGestureRecognizer *)gesture
+- (void)handlePanForTextView:(UIPanGestureRecognizer *)gestureRecognizer
 {
-    NSLog(@"gestureRecognizer: %@", gesture);
-//    NSLog(@"state: %@", NSStringFromUIGestureRegognizerState(gesture.state));
+    NSLog(@"gestureRecognizer: %@", gestureRecognizer);
+    //    NSLog(@"state: %@", NSStringFromUIGestureRegognizerState(gesture.state));
 
-//    switch (gesture.state) {
-//        case UIGestureRecognizerStateBegan:
-//            startScrollPoint = [gesture locationInView:self.scrollView];
-//            break;
-//        case UIGestureRecognizerStateEnded: {
-//            NSLog(@"end");
-//        }
-//        default:
-//            ;
-//            break;
-//    }
+    if (gestureRecognizer == self.horizontalPanGestureRecognizer) {
+        CGPoint newLocation = [gestureRecognizer locationInView:gestureRecognizer.view];
+        NSLog(@"locationInView: %@", NSStringFromCGPoint(newLocation));
+
+        switch (gestureRecognizer.state) {
+            case UIGestureRecognizerStateBegan: {
+                self.lastHorizontalScrollPoint = newLocation;
+                break;
+            }
+            case UIGestureRecognizerStateChanged: {
+                CGFloat horizontalDelta = newLocation.x - self.lastHorizontalScrollPoint.x;
+                NSLog(@"horizontalDelta: %f", horizontalDelta);
+
+                // Drive the contentOffset
+                CGPoint contentOffset = self.textView.contentOffset;
+                contentOffset.x -= horizontalDelta;
+                [self.textView setContentOffset:contentOffset animated:YES];
+
+                // Save the new location
+                self.lastHorizontalScrollPoint = newLocation;
+                break;
+            }
+            case UIGestureRecognizerStateEnded: {
+                self.lastHorizontalScrollPoint = CGPointZero;
+                break;
+            }
+            default:
+                ;
+        }
+    }
 }
 
 @end
