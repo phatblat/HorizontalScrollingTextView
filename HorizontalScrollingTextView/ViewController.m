@@ -128,9 +128,8 @@ static NSString * NSStringFromUIGestureRegognizerState(UIGestureRecognizerState 
     NSLog(@"textContainer.size: %@", NSStringFromCGSize(self.textView.textContainer.size));
 
     CGSize contentSize = self.textView.contentSize;
-    CGFloat textLength = [self.textView.text sizeWithFont:self.textView.font
-                                        constrainedToSize:CGSizeMake(CGFLOAT_MAX, self.textView.frame.size.height)
-                                            lineBreakMode:NSLineBreakByWordWrapping].width;
+    CGFloat textLength = [self.textView.text boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, self.textView.frame.size.height)
+                                                          options:0 attributes:nil context:nil].size.width;
     contentSize.width = textLength;
     self.textView.contentSize = contentSize;
     self.textView.textContainer.size = contentSize;
