@@ -10,32 +10,36 @@
 #import "TextContainer.h"
 #import "TextView.h"
 
-static NSString * NSStringFromUIGestureRegognizerState(UIGestureRecognizerState state) {
-    switch (state) {
-        case UIGestureRecognizerStatePossible:
-            return @"UIGestureRecognizerStatePossible";
-            break;
-        case UIGestureRecognizerStateBegan:
-            return @"UIGestureRecognizerStateBegan";
-            break;
-        case UIGestureRecognizerStateChanged:
-            return @"UIGestureRecognizerStateChanged";
-            break;
-        case UIGestureRecognizerStateEnded:
-            return @"UIGestureRecognizerStateEnded";
-            break;
-        case UIGestureRecognizerStateCancelled:
-            return @"UIGestureRecognizerStateCancelled";
-            break;
-        case UIGestureRecognizerStateFailed:
-            return @"UIGestureRecognizerStateFailed";
-            break;
-    }
-}
+//static NSString * NSStringFromUIGestureRegognizerState(UIGestureRecognizerState state) {
+//    switch (state) {
+//        case UIGestureRecognizerStatePossible:
+//            return @"UIGestureRecognizerStatePossible";
+//            break;
+//        case UIGestureRecognizerStateBegan:
+//            return @"UIGestureRecognizerStateBegan";
+//            break;
+//        case UIGestureRecognizerStateChanged:
+//            return @"UIGestureRecognizerStateChanged";
+//            break;
+//        case UIGestureRecognizerStateEnded:
+//            return @"UIGestureRecognizerStateEnded";
+//            break;
+//        case UIGestureRecognizerStateCancelled:
+//            return @"UIGestureRecognizerStateCancelled";
+//            break;
+//        case UIGestureRecognizerStateFailed:
+//            return @"UIGestureRecognizerStateFailed";
+//            break;
+//    }
+//}
 
 @interface ViewController ()
 
-@property (strong, nonatomic) TextView *textView;
+//@property (strong, nonatomic) UIScrollView *scrollView;
+//@property (strong, nonatomic) TextView *textView;
+
+@property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
+@property (weak, nonatomic) IBOutlet UITextView *textView;
 
 /**
  This is a pointer to the textView's default scrollview UIPanGestureRecognizer
@@ -54,48 +58,66 @@ static NSString * NSStringFromUIGestureRegognizerState(UIGestureRecognizerState 
 {
     [super viewDidLoad];
 
+    // Scrollview for horizontal scrolling
+//    self.scrollView = [[UIScrollView alloc] initWithFrame:self.view.frame];
+//    [self constrainView:self.scrollView toParentView:self.view];
+
+    // Load text and detect size
+    NSString *contentText = [self loadText];
+    CGRect contentRect = [contentText boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, self.textView.frame.size.height)
+                                                options:0 attributes:nil context:nil];
+    CGSize contentSize = contentRect.size;
+    CGFloat contentWidth = contentRect.size.width;
+    if (contentWidth < self.view.frame.size.width) {
+        // text view minimum frame width is the width of the root view frame
+        contentWidth = self.view.frame.size.width;
+    }
+    CGRect textViewFrame = CGRectMake(0, 0, contentWidth, self.view.frame.size.height);
+    CGSize scrollSize = CGSizeMake(contentWidth, self.view.frame.size.height);
+    self.scrollView.contentSize = scrollSize;
+
     // Create a fresh TextKit stack - http://www.objc.io/issue-5/getting-to-know-textkit.html
-    NSTextStorage *textStorage = [[NSTextStorage alloc] init];
-    NSLayoutManager *layoutManager = [[NSLayoutManager alloc] init];
-    [textStorage addLayoutManager:layoutManager];
-    TextContainer *textContainer = [[TextContainer alloc] init];
-    [layoutManager addTextContainer:textContainer];
-    self.textView = [[TextView alloc] initWithFrame:self.view.frame textContainer:textContainer];
+//    NSTextStorage *textStorage = [[NSTextStorage alloc] init];
+//    NSLayoutManager *layoutManager = [[NSLayoutManager alloc] init];
+//    [textStorage addLayoutManager:layoutManager];
+//    TextContainer *textContainer = [[TextContainer alloc] init];
+//    [layoutManager addTextContainer:textContainer];
+//    self.textView = [[TextView alloc] initWithFrame:textViewFrame textContainer:textContainer];
 
     // View hierarchy
-    [self.view addSubview:self.textView];
-    self.textView.translatesAutoresizingMaskIntoConstraints = NO;
-
-    NSLayoutConstraint *topConstraint = [NSLayoutConstraint constraintWithItem:self.textView
-                                                                     attribute:NSLayoutAttributeTop
-                                                                     relatedBy:NSLayoutRelationEqual
-                                                                        toItem:self.view
-                                                                     attribute:NSLayoutAttributeTop
-                                                                    multiplier:1
-                                                                      constant:0];
-    NSLayoutConstraint *bottomConstraint = [NSLayoutConstraint constraintWithItem:self.textView
-                                                                        attribute:NSLayoutAttributeBottom
-                                                                        relatedBy:NSLayoutRelationEqual
-                                                                           toItem:self.view
-                                                                        attribute:NSLayoutAttributeBottom
-                                                                       multiplier:1
-                                                                         constant:0];
-    NSLayoutConstraint *leadingConstraint = [NSLayoutConstraint constraintWithItem:self.textView
-                                                                         attribute:NSLayoutAttributeLeading
-                                                                         relatedBy:NSLayoutRelationEqual
-                                                                            toItem:self.view
-                                                                         attribute:NSLayoutAttributeLeading
-                                                                        multiplier:1
-                                                                          constant:0];
-    NSLayoutConstraint *trailingConstraint = [NSLayoutConstraint constraintWithItem:self.textView
-                                                                         attribute:NSLayoutAttributeTrailing
-                                                                         relatedBy:NSLayoutRelationEqual
-                                                                            toItem:self.view
-                                                                         attribute:NSLayoutAttributeTrailing
-                                                                        multiplier:1
-                                                                          constant:0];
-
-    [self.view addConstraints:@[topConstraint, bottomConstraint, leadingConstraint, trailingConstraint]];
+//    [self.scrollView addSubview:self.textView];
+//    self.textView.translatesAutoresizingMaskIntoConstraints = NO;
+//
+//    NSLayoutConstraint *topConstraint = [NSLayoutConstraint constraintWithItem:self.textView
+//                                                                     attribute:NSLayoutAttributeTop
+//                                                                     relatedBy:NSLayoutRelationEqual
+//                                                                        toItem:self.scrollView
+//                                                                     attribute:NSLayoutAttributeTop
+//                                                                    multiplier:1
+//                                                                      constant:0];
+//    NSLayoutConstraint *bottomConstraint = [NSLayoutConstraint constraintWithItem:self.textView
+//                                                                        attribute:NSLayoutAttributeBottom
+//                                                                        relatedBy:NSLayoutRelationEqual
+//                                                                           toItem:self.scrollView
+//                                                                        attribute:NSLayoutAttributeBottom
+//                                                                       multiplier:1
+//                                                                         constant:0];
+//    NSLayoutConstraint *leadingConstraint = [NSLayoutConstraint constraintWithItem:self.textView
+//                                                                         attribute:NSLayoutAttributeLeading
+//                                                                         relatedBy:NSLayoutRelationEqual
+//                                                                            toItem:self.scrollView
+//                                                                         attribute:NSLayoutAttributeLeading
+//                                                                        multiplier:1
+//                                                                          constant:0];
+//    NSLayoutConstraint *trailingConstraint = [NSLayoutConstraint constraintWithItem:self.textView
+//                                                                         attribute:NSLayoutAttributeTrailing
+//                                                                         relatedBy:NSLayoutRelationEqual
+//                                                                            toItem:self.scrollView
+//                                                                         attribute:NSLayoutAttributeTrailing
+//                                                                        multiplier:1
+//                                                                          constant:0];
+//
+//    [self.scrollView addConstraints:@[topConstraint, bottomConstraint, leadingConstraint, trailingConstraint]];
 
     // Delegates
     self.textView.delegate = self;
@@ -108,32 +130,29 @@ static NSString * NSStringFromUIGestureRegognizerState(UIGestureRecognizerState 
     self.textView.clipsToBounds = NO;
 
     // Gesture recognizers
-    self.verticalPanGestureRecognizer = self.textView.panGestureRecognizer;
+//    self.verticalPanGestureRecognizer = self.textView.panGestureRecognizer;
 //    [self.verticalPanGestureRecognizer addTarget:self action:@selector(handlePanForTextView:)];
-    self.horizontalPanGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanForTextView:)];
-    self.horizontalPanGestureRecognizer.delegate = self;
+//    self.horizontalPanGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanForTextView:)];
+//    self.horizontalPanGestureRecognizer.delegate = self;
 //    [self.horizontalPanGestureRecognizer requireGestureRecognizerToFail:self.verticalPanGestureRecognizer];
-    [self.textView addGestureRecognizer:self.horizontalPanGestureRecognizer];
+//    [self.textView addGestureRecognizer:self.horizontalPanGestureRecognizer];
     NSLog(@"self.textView.panGestureRecognizer: %@", self.textView.panGestureRecognizer);
     NSLog(@"self.verticalPanGestureRecognizer: %@", self.verticalPanGestureRecognizer);
     NSLog(@"self.horizontalPanGestureRecognizer: %@", self.horizontalPanGestureRecognizer);
 
     // Text Style
-    self.textView.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
+//    self.textView.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
 
     // Load text into textView
-    self.textView.text = [self loadText];
+    self.textView.text = contentText;
+    [self.textView sizeToFit];
 
     NSLog(@"self.textView.contentSize: %@", NSStringFromCGSize(self.textView.contentSize));
     NSLog(@"textContainer.size: %@", NSStringFromCGSize(self.textView.textContainer.size));
 
-    CGSize contentSize = self.textView.contentSize;
-    CGFloat textLength = [self.textView.text boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, self.textView.frame.size.height)
-                                                          options:0 attributes:nil context:nil].size.width;
-    contentSize.width = textLength;
     self.textView.contentSize = contentSize;
     self.textView.textContainer.size = contentSize;
-    textContainer.contentSize = contentSize;
+//    textContainer.contentSize = contentSize;
 
     NSLog(@"contentSize: %@", NSStringFromCGSize(contentSize));
     NSLog(@"self.textView.contentSize: %@", NSStringFromCGSize(self.textView.contentSize));
@@ -218,6 +237,47 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
                 ;
         }
     }
+}
+
+
+- (UIView *)constrainView:(UIView *)subview toParentView:(UIView *)parentView
+{
+    [parentView addSubview:subview];
+    subview.translatesAutoresizingMaskIntoConstraints = NO;
+
+    NSLayoutConstraint *topConstraint = [NSLayoutConstraint constraintWithItem:subview
+                                                                     attribute:NSLayoutAttributeTop
+                                                                     relatedBy:NSLayoutRelationEqual
+                                                                        toItem:parentView
+                                                                     attribute:NSLayoutAttributeTop
+                                                                    multiplier:1
+                                                                      constant:0];
+    NSLayoutConstraint *bottomConstraint = [NSLayoutConstraint constraintWithItem:subview
+                                                                        attribute:NSLayoutAttributeBottom
+                                                                        relatedBy:NSLayoutRelationEqual
+                                                                           toItem:parentView
+                                                                        attribute:NSLayoutAttributeBottom
+                                                                       multiplier:1
+                                                                         constant:0];
+    NSLayoutConstraint *leadingConstraint = [NSLayoutConstraint constraintWithItem:subview
+                                                                         attribute:NSLayoutAttributeLeading
+                                                                         relatedBy:NSLayoutRelationEqual
+                                                                            toItem:parentView
+                                                                         attribute:NSLayoutAttributeLeading
+                                                                        multiplier:1
+                                                                          constant:0];
+    NSLayoutConstraint *trailingConstraint = [NSLayoutConstraint constraintWithItem:subview
+                                                                          attribute:NSLayoutAttributeTrailing
+                                                                          relatedBy:NSLayoutRelationEqual
+                                                                             toItem:parentView
+                                                                          attribute:NSLayoutAttributeTrailing
+                                                                         multiplier:1
+                                                                           constant:0];
+
+    [parentView addConstraints:@[topConstraint, bottomConstraint, leadingConstraint, trailingConstraint]];
+    [parentView layoutIfNeeded];
+
+    return subview;
 }
 
 @end
