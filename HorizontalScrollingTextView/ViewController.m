@@ -65,16 +65,25 @@
     // Load text and detect size
     NSString *contentText = [self loadText];
     CGRect contentRect = [contentText boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, self.textView.frame.size.height)
-                                                options:0 attributes:nil context:nil];
+                                                   options:NSStringDrawingUsesLineFragmentOrigin
+                                                attributes:nil context:nil];
     CGSize contentSize = contentRect.size;
     CGFloat contentWidth = contentRect.size.width;
     if (contentWidth < self.view.frame.size.width) {
         // text view minimum frame width is the width of the root view frame
         contentWidth = self.view.frame.size.width;
     }
+
     CGRect textViewFrame = CGRectMake(0, 0, contentWidth, self.view.frame.size.height);
+    self.textView.frame = textViewFrame;
+    NSLog(@"textViewFrame: %@", NSStringFromCGRect(textViewFrame));
+
     CGSize scrollSize = CGSizeMake(contentWidth, self.view.frame.size.height);
     self.scrollView.contentSize = scrollSize;
+    NSLog(@"scrollSize: %@", NSStringFromCGSize(scrollSize));
+
+    self.scrollView.delegate = self;
+    self.scrollView.scrollsToTop = NO;
 
     // Create a fresh TextKit stack - http://www.objc.io/issue-5/getting-to-know-textkit.html
 //    NSTextStorage *textStorage = [[NSTextStorage alloc] init];
@@ -130,13 +139,18 @@
     self.textView.clipsToBounds = NO;
 
     // Gesture recognizers
-//    self.verticalPanGestureRecognizer = self.textView.panGestureRecognizer;
-//    [self.verticalPanGestureRecognizer addTarget:self action:@selector(handlePanForTextView:)];
-//    self.horizontalPanGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanForTextView:)];
-//    self.horizontalPanGestureRecognizer.delegate = self;
+    self.verticalPanGestureRecognizer = self.textView.panGestureRecognizer;
+//    self.verticalPanGestureRecognizer.delegate = self;
+    [self.verticalPanGestureRecognizer addTarget:self action:@selector(handlePanGesture:)];
+
+    self.horizontalPanGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanGesture:)];
+//    self.horizontalPanGestureRecognizer = self.scrollView.panGestureRecognizer;
+    self.horizontalPanGestureRecognizer.delegate = self;
+    [self.horizontalPanGestureRecognizer addTarget:self action:@selector(handlePanGesture:)];
+
 //    [self.horizontalPanGestureRecognizer requireGestureRecognizerToFail:self.verticalPanGestureRecognizer];
-//    [self.textView addGestureRecognizer:self.horizontalPanGestureRecognizer];
-    NSLog(@"self.textView.panGestureRecognizer: %@", self.textView.panGestureRecognizer);
+    [self.scrollView addGestureRecognizer:self.horizontalPanGestureRecognizer];
+
     NSLog(@"self.verticalPanGestureRecognizer: %@", self.verticalPanGestureRecognizer);
     NSLog(@"self.horizontalPanGestureRecognizer: %@", self.horizontalPanGestureRecognizer);
 
@@ -145,13 +159,14 @@
 
     // Load text into textView
     self.textView.text = contentText;
+    self.textView.contentSize = contentSize;
     [self.textView sizeToFit];
 
     NSLog(@"self.textView.contentSize: %@", NSStringFromCGSize(self.textView.contentSize));
     NSLog(@"textContainer.size: %@", NSStringFromCGSize(self.textView.textContainer.size));
 
-    self.textView.contentSize = contentSize;
-    self.textView.textContainer.size = contentSize;
+//    self.textView.contentSize = contentSize;
+//    self.textView.textContainer.size = contentSize;
 //    textContainer.contentSize = contentSize;
 
     NSLog(@"contentSize: %@", NSStringFromCGSize(contentSize));
@@ -169,14 +184,28 @@
 {
     NSLog(@"");
 
-    // Leave the stock UIScrollViewPanGestureRecognizer alone, it handles vertical scrolling
+    if (gestureRecognizer == self.horizontalPanGestureRecognizer) {
+        if (self.verticalPanGestureRecognizer.state == UIGestureRecognizerStateBegan ||
+            self.verticalPanGestureRecognizer.state == UIGestureRecognizerStateChanged) {
+            // Disallow horizontal tracking while vertical tracking
+            return NO;
+        }
+        // Only allow the horizontalPanGestureRecognizer to begin when we are scrolling horizontally
+        CGPoint velocity = [gestureRecognizer velocityInView:self.textView];
+        return fabs(velocity.x) > fabs(velocity.y);
+    }
+
     if (gestureRecognizer == self.verticalPanGestureRecognizer) {
+        if (self.horizontalPanGestureRecognizer.state == UIGestureRecognizerStateBegan ||
+            self.horizontalPanGestureRecognizer.state == UIGestureRecognizerStateChanged) {
+            // Disallow vertical tracking while horizontal tracking
+            return NO;
+        }
         return YES;
     }
 
-    // Only allow the horizontalPanGestureRecognizer to begin when we are scrolling horizontally
-    CGPoint velocity = [gestureRecognizer velocityInView:self.textView];
-    return fabs(velocity.x) > fabs(velocity.y);
+    // Shouldn't be able to get here
+    return YES;
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
@@ -202,9 +231,9 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
     return content;
 }
 
-- (void)handlePanForTextView:(UIPanGestureRecognizer *)gestureRecognizer
+- (void)handlePanGesture:(UIPanGestureRecognizer *)gestureRecognizer
 {
-    NSLog(@"gestureRecognizer: %@", gestureRecognizer);
+//    NSLog(@"gestureRecognizer: %@", gestureRecognizer);
     //    NSLog(@"state: %@", NSStringFromUIGestureRegognizerState(gesture.state));
 
     if (gestureRecognizer == self.horizontalPanGestureRecognizer) {
@@ -221,9 +250,9 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
                 NSLog(@"horizontalDelta: %f", horizontalDelta);
 
                 // Drive the contentOffset
-                CGPoint contentOffset = self.textView.contentOffset;
+                CGPoint contentOffset = self.scrollView.contentOffset;
                 contentOffset.x -= horizontalDelta;
-                [self.textView setContentOffset:contentOffset animated:YES];
+                [self.scrollView setContentOffset:contentOffset animated:YES];
 
                 // Save the new location
                 self.lastHorizontalScrollPoint = newLocation;
