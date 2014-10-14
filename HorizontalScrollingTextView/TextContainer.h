@@ -10,4 +10,6 @@
 
 @interface TextContainer : NSTextContainer
 
+@property (assign, nonatomic) CGSize contentSize;
+
 @end

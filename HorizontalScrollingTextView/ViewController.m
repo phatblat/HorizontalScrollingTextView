@@ -105,6 +105,7 @@ static NSString * NSStringFromUIGestureRegognizerState(UIGestureRecognizerState 
     self.textView.scrollEnabled = YES;
     self.textView.editable = NO;
     self.textView.layoutManager.allowsNonContiguousLayout = YES;
+    self.textView.clipsToBounds = NO;
 
     // Gesture recognizers
     self.verticalPanGestureRecognizer = self.textView.panGestureRecognizer;

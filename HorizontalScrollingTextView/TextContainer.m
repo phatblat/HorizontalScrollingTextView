@@ -17,10 +17,15 @@
                          writingDirection:(NSWritingDirection)baseWritingDirection
                             remainingRect:(CGRect *)remainingRect
 {
-    NSLog(@"proposedRect: %@", NSStringFromCGRect(proposedRect));
+//    NSLog(@"proposedRect: %@", NSStringFromCGRect(proposedRect));
 
     CGRect resultingRect = [super lineFragmentRectForProposedRect:proposedRect atIndex:characterIndex writingDirection:baseWritingDirection remainingRect:remainingRect];
-    NSLog(@"resultingRect: %@", NSStringFromCGRect(resultingRect));
+//    NSLog(@"resultingRect: %@", NSStringFromCGRect(resultingRect));
+
+    if (proposedRect.size.width > self.contentSize.width) {
+        proposedRect.size.width = self.contentSize.width;
+//        NSLog(@">>> proposedRect: %@", NSStringFromCGRect(proposedRect));
+    }
 
     return proposedRect;
 }
