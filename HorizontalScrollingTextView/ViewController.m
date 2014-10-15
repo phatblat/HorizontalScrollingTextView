@@ -10,7 +10,14 @@
 
 @interface ViewController ()
 
+/**
+ Defined in storyboard.
+ */
 @property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
+
+/**
+ Created in code for precise control of frame.
+ */
 @property (strong, nonatomic) IBOutlet UITextView *textView;
 
 @end
@@ -24,12 +31,16 @@
     [super viewDidLoad];
 
     UIFont *font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
+    NSDictionary *attributes = @{ NSFontAttributeName: font };
 
     // Load text and detect size
     NSString *contentText = [self loadText];
     CGRect contentRect = [contentText boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, self.textView.frame.size.height)
                                                    options:(NSStringDrawingUsesLineFragmentOrigin)
-                                                attributes:nil context:nil];
+                                                attributes:attributes context:nil];
+    // Fix up values
+    contentRect = CGRectMake(contentRect.origin.x, contentRect.origin.y, ceil(contentRect.size.width), ceil(contentRect.size.height));
+
     CGSize contentSize = contentRect.size;
     CGFloat contentWidth = contentRect.size.width;
     if (contentWidth < self.view.frame.size.width) {
@@ -44,11 +55,12 @@
 
     // TextView frame
     CGRect textViewFrame = CGRectMake(0, 0, contentWidth, contentHeight);
-    [self.textView removeFromSuperview];
+    NSLog(@"textViewFrame: %@", NSStringFromCGRect(textViewFrame));
+
     self.textView = [[UITextView alloc] initWithFrame:textViewFrame];
     self.textView.translatesAutoresizingMaskIntoConstraints = NO;
-//    self.textView.frame = textViewFrame;
-    NSLog(@"textViewFrame: %@", NSStringFromCGRect(textViewFrame));
+    self.textView.editable = NO;
+    self.textView.scrollEnabled = YES; // When this is NO nothing shows up
 
     // TextView border for debugging
     self.textView.layer.borderWidth = 1;
@@ -71,6 +83,7 @@
 
 //    CGSize scrollSize = CGSizeMake(contentWidth, self.view.frame.size.height);
     self.scrollView.contentSize = contentSize; // scrollSize;
+    self.scrollView.contentInset = UIEdgeInsetsMake(0, 0, 40, -40);
 }
 
 #pragma mark - Private Methods
